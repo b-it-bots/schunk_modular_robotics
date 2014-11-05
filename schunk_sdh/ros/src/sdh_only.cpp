@@ -661,7 +661,7 @@ class SdhNode
 			}
 			catch (SDH::cSDHLibraryException* e)
 			{
-				ROS_ERROR("An exception was caught: %s", e->what());
+				ROS_ERROR("An exception was caught while reading actual axis angles: %s", e->what());
 				delete e;
 			}
 			std::vector<double> actualVelocities;
@@ -671,7 +671,7 @@ class SdhNode
 			}
 			catch (SDH::cSDHLibraryException* e)
 			{
-				ROS_ERROR("An exception was caught: %s", e->what());
+				ROS_ERROR("An exception was caught while reading actual axis velocities: %s", e->what());
 				delete e;
 			}
 			
