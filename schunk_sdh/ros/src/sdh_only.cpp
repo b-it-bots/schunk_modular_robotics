@@ -102,7 +102,7 @@ class SdhNode
 		ros::Publisher topicPub_JointState_;
 		ros::Publisher topicPub_ControllerState_;
 		ros::Publisher topicPub_Diagnostics_;
-		
+
 		// topic subscribers
 		ros::Subscriber subSetVelocitiesRaw_;
 		ros::Subscriber subSetVelocities_;
@@ -134,16 +134,16 @@ class SdhNode
 		bool isError_;
 		int DOF_;
 		double pi_;
-		
+
 		trajectory_msgs::JointTrajectory traj_;
-		
+
 		std::vector<std::string> joint_names_;
 		std::vector<int> axes_;
 		std::vector<double> targetAngles_; // in degrees
 		std::vector<double> velocities_; // in rad/s
 		bool hasNewGoal_;
 		std::string operationMode_; 
-		
+
 	public:
 		/*!
 		* \brief Constructor for SdhNode class
@@ -155,7 +155,7 @@ class SdhNode
 			action_name_(name)
 		{
 			pi_ = 3.1415926;
-			
+
 			nh_ = ros::NodeHandle ("~");
 			isError_ = false;
 			// diagnostics
@@ -195,7 +195,7 @@ class SdhNode
 			srvServer_Stop_ = nh_.advertiseService("stop", &SdhNode::srvCallback_Stop, this);
 			srvServer_Recover_ = nh_.advertiseService("recover", &SdhNode::srvCallback_Init, this); //HACK: There is no recover implemented yet, so we execute a init
 			srvServer_SetOperationMode_ = nh_.advertiseService("set_operation_mode", &SdhNode::srvCallback_SetOperationMode, this);
-			
+
 			subSetVelocitiesRaw_ = nh_.subscribe("set_velocities_raw", 1, &SdhNode::topicCallback_setVelocitiesRaw, this);
 			subSetVelocities_ = nh_.subscribe("set_velocities", 1, &SdhNode::topicCallback_setVelocities, this);
 
@@ -203,7 +203,7 @@ class SdhNode
 			nh_.param("sdhdevicetype", sdhdevicetype_, std::string("PCAN"));
 			nh_.param("sdhdevicestring", sdhdevicestring_, std::string("/dev/pcan0"));
 			nh_.param("sdhdevicenum", sdhdevicenum_, 0);
-			
+
 			nh_.param("baudrate", baudrate_, 1000000);
 			nh_.param("timeout", timeout_, (double)0.04);
 			nh_.param("id_read", id_read_, 43);
@@ -229,7 +229,7 @@ class SdhNode
 				joint_names_[i] = (std::string)joint_names_param[i];
 			}
 			std::cout << "joint_names = " << joint_names_param << std::endl;
-			
+
 			// define axes to send to sdh
 			axes_.resize(DOF_);
 			velocities_.resize(DOF_);
@@ -238,7 +238,7 @@ class SdhNode
 				axes_[i] = i;
 			}
 			ROS_INFO("DOF = %d",DOF_);
-			
+
 			state_.resize(axes_.size());
 
 			nh_.param("OperationMode", operationMode_, std::string("position"));
@@ -252,7 +252,7 @@ class SdhNode
 		bool switchOperationMode(const std::string &mode){
 			hasNewGoal_ = false;
 			sdh_->Stop();
-			
+
 			try{
 				if(mode == "position"){
 					sdh_->SetController(SDH::cSDH::eCT_POSE);
@@ -270,7 +270,7 @@ class SdhNode
 				delete e;
 				return false;
 			}
-			
+
 			operationMode_ = mode;
 			return true;
 
@@ -283,7 +283,7 @@ class SdhNode
 		* \param goal JointTrajectoryGoal
 		*/
 		void executeCB(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal)
-		{			
+		{
 			ROS_INFO("sdh: executeCB");
 			if (operationMode_ != "position")
 			{
@@ -321,11 +321,11 @@ class SdhNode
 			targetAngles_[5] = goal->trajectory.points[0].positions[dict["sdh_finger_12_joint"]]*180.0/pi_; // sdh_finger12_joint
 			targetAngles_[6] = goal->trajectory.points[0].positions[dict["sdh_finger_13_joint"]]*180.0/pi_; // sdh_finger13_joint
 			ROS_INFO("received position goal: [['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint']] = [%f,%f,%f,%f,%f,%f,%f]",goal->trajectory.points[0].positions[dict["sdh_knuckle_joint"]],goal->trajectory.points[0].positions[dict["sdh_thumb_2_joint"]],goal->trajectory.points[0].positions[dict["sdh_thumb_3_joint"]],goal->trajectory.points[0].positions[dict["sdh_finger_12_joint"]],goal->trajectory.points[0].positions[dict["sdh_finger_13_joint"]],goal->trajectory.points[0].positions[dict["sdh_finger_22_joint"]],goal->trajectory.points[0].positions[dict["sdh_finger_23_joint"]]);
-		
+
 			hasNewGoal_ = true;
-			
+
 			usleep(500000); // needed sleep until sdh starts to change status from idle to moving
-			
+
 			bool finished = false;
 			while(finished == false)
 			{
@@ -343,16 +343,16 @@ class SdhNode
 		 				finished = true;
 		 			}
 		 			else
-		 			{	
+		 			{
 		 				finished = false;
 		 			}
 		 		}
 		 		usleep(10000);
-				//feedback_ = 
+				//feedback_ =
 				//as_.send feedback_
 			}
 
-			// set the action state to succeeded			
+			// set the action state to succeeded
 			ROS_INFO("%s: Succeeded", action_name_.c_str());
 			//result_.result.data = "succesfully received new goal";
 			//result_.success = 1;
@@ -432,7 +432,7 @@ class SdhNode
 			valid = valid && parseDegFromJointValue(msg->velocities[4], velocities_[6]); // sdh_finger13_joint
 
 			if (valid) hasNewGoal_ = true;
-		}		
+		}
 		/*!
 		* \brief Executes the service callback for init.
 		*
@@ -606,10 +606,14 @@ class SdhNode
 				}
 				catch (SDH::cSDHLibraryException* e)
 				{
-					ROS_ERROR("An exception was caught: %s", e->what());
+					ROS_ERROR("An exception during stop command was caught: %s", e->what());
 					delete e;
 				}
-		
+				catch(...)
+				{
+					ROS_ERROR("An unkown exception during stop command was caught.");
+				}
+
 				if (operationMode_ == "position")
 				{
 					ROS_DEBUG("moving sdh in position mode");
@@ -621,9 +625,13 @@ class SdhNode
 					}
 					catch (SDH::cSDHLibraryException* e)
 					{
-						ROS_ERROR("An exception was caught: %s", e->what());
+						ROS_ERROR("An exception while setting a position was caught: %s", e->what());
 						delete e;
 					}
+					catch(...)
+                                	{
+                                       		ROS_ERROR("An unkown exception while setting a position was caught");
+                                	}
 				}
 				else if (operationMode_ == "velocity")
 				{
@@ -635,9 +643,13 @@ class SdhNode
 					}
 					catch (SDH::cSDHLibraryException* e)
 					{
-						ROS_ERROR("An exception was caught: %s", e->what());
+						ROS_ERROR("An exception while setting velocities was caught: %s", e->what());
 						delete e;
 					}
+					catch(...)
+                                	{
+                                        	ROS_ERROR("An unkown exception while setting velocities was caught");
+                                	}
 				}
 				else if (operationMode_ == "effort")
 				{
@@ -649,7 +661,7 @@ class SdhNode
 				{
 					ROS_ERROR("sdh neither in position nor in velocity nor in effort mode. OperationMode = [%s]", operationMode_.c_str());
 				}
-				
+
 				hasNewGoal_ = false;
 			}
 
@@ -664,6 +676,11 @@ class SdhNode
 				ROS_ERROR("An exception was caught while reading actual axis angles: %s", e->what());
 				delete e;
 			}
+			catch(...)
+                        {
+                        	ROS_ERROR("An unkown exception was caught while reading actual axis angles");
+                        }
+
 			std::vector<double> actualVelocities;
 			try
 			{
@@ -674,11 +691,15 @@ class SdhNode
 				ROS_ERROR("An exception was caught while reading actual axis velocities: %s", e->what());
 				delete e;
 			}
-			
+			catch(...)
+                        {
+                                ROS_ERROR("An unkown exception while reading actual axis velocities was caught");
+                        }
+
 			ROS_DEBUG("received %d angles from sdh",(int)actualAngles.size());
-			
+
 			ros::Time time = ros::Time::now();
-			
+
 			// create joint_state message
 			sensor_msgs::JointState msg;
 			msg.header.stamp = time;
@@ -713,11 +734,11 @@ class SdhNode
 				msg.velocity[5] = actualVelocities[1]*pi_/180.0; // sdh_finger_22_joint
 				msg.velocity[6] = actualVelocities[2]*pi_/180.0; // sdh_finger_23_joint
 			}
-			
+
 			// publish message
 			topicPub_JointState_.publish(msg);
-			
-			
+
+
 			// because the robot_state_publisher doen't know about the mimic joint, we have to publish the coupled joint separately
 			sensor_msgs::JointState  mimicjointmsg;
 			mimicjointmsg.header.stamp = time;
@@ -728,8 +749,8 @@ class SdhNode
 			mimicjointmsg.position[0] = msg.position[0]; // sdh_knuckle_joint = sdh_finger_21_joint
 			mimicjointmsg.velocity[0] = msg.velocity[0]; // sdh_knuckle_joint = sdh_finger_21_joint
 			topicPub_JointState_.publish(mimicjointmsg);
-			
-			
+
+
 			// publish controller state message
 			control_msgs::JointTrajectoryControllerState controllermsg;
 			controllermsg.header.stamp = time;
