@@ -4,18 +4,18 @@
   <xacro:macro name="schunk_pg70_gazebo" params="name">
 
     <gazebo reference="${name}_palm_link">
-      <material>Schunk/LightGrey</material>
-      <turnGravityOff>false</turnGravityOff>
+      <gravity>true</gravity>
+      <self_collide>false</self_collide>
     </gazebo>
-  
+
     <gazebo reference="${name}_finger_left_link">
-      <material>Schunk/LightGrey</material>
-      <turnGravityOff>false</turnGravityOff>
+      <gravity>true</gravity>
+      <self_collide>false</self_collide>
     </gazebo>
-  
+
     <gazebo reference="${name}_finger_right_link">
-      <material>Schunk/LightGrey</material>
-      <turnGravityOff>false</turnGravityOff>
+      <gravity>true</gravity>
+      <self_collide>false</self_collide>
     </gazebo>
 
   </xacro:macro>
