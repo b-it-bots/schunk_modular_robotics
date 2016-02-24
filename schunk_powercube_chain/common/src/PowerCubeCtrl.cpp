@@ -484,7 +484,6 @@ bool PowerCubeCtrl::MoveVel(const std::vector<double>& vel)
 
 		// calculate target position
 		target_pos_horizon[i] = m_positions[i] + delta_pos_horizon[i] - Offsets[i];
-
 		ROS_DEBUG("target_pos[%i]: %f m_position[%i]: %f",i ,target_pos[i], i, m_positions[i]);
 	}
 
@@ -1222,7 +1221,6 @@ bool PowerCubeCtrl::doHoming()
 	{
 		std::ostringstream errorMsg;
 		errorMsg << "Module " << ModuleIDs[i] << " has position " << position << " that is outside limits (" << UpperLimits[i] + Offsets[i] << " <-> " << LowerLimits[i] + Offsets[i] << std::endl;
-
 		if ((m_ModuleTypes.at(i)=="PW") || (m_ModuleTypes.at(i) == "other"))
 		{	std::cout << "Position error for PW-Module. Init is aborted. Try to reboot the robot." << std::endl;
 			m_ErrorMessage = errorMsg.str();
@@ -1348,22 +1346,6 @@ bool PowerCubeCtrl::doHoming()
   // modules successfully homed
   m_pc_status = PC_CTRL_OK;
   return true;
-}
-
-/*!
- * \brief Map an external position to an internal position.
- */
-double PowerCubeCtrl::mapToInternalPosition(double external_pos, double offset)
-{
-  return external_pos - offset;
-}
-
-/*!
- * \brief Map an internal position to an external position.
- */
-double PowerCubeCtrl::mapToExternalPosition(double internal_pos, double offset)
-{
-  return internal_pos + offset;
 }
 
 /*!
