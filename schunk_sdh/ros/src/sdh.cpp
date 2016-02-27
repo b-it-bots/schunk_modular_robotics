@@ -157,7 +157,7 @@ public:
    *
    * \param name Name for the actionlib server
    */
-  SdhNode(std::string name) :
+  explicit SdhNode(std::string name) :
       as_(nh_, name, boost::bind(&SdhNode::executeCB, this, _1), true), action_name_(name)
   {
     pi_ = 3.1415926;
@@ -202,7 +202,8 @@ public:
     // implementation of service servers
     srvServer_Init_ = nh_.advertiseService("init", &SdhNode::srvCallback_Init, this);
     srvServer_Stop_ = nh_.advertiseService("stop", &SdhNode::srvCallback_Stop, this);
-    srvServer_Recover_ = nh_.advertiseService("recover", &SdhNode::srvCallback_Init, this);  // HACK: There is no recover implemented yet, so we execute a init
+    // HACK: There is no recover implemented yet, so we execute a init
+    srvServer_Recover_ = nh_.advertiseService("recover", &SdhNode::srvCallback_Init, this);
     srvServer_SetOperationMode_ = nh_.advertiseService("set_operation_mode", &SdhNode::srvCallback_SetOperationMode,
                                                        this);
 
@@ -282,7 +283,7 @@ public:
         ROS_ERROR_STREAM("Operation mode '" << mode << "'  not supported");
         return false;
       }
-      sdh_->SetAxisEnable(sdh_->All, 1.0);  // TODO: check if necessary
+      sdh_->SetAxisEnable(sdh_->All, 1.0);  // TODO(X) check if necessary
     }
     catch (SDH::cSDHLibraryException* e)
     {
@@ -298,7 +299,8 @@ public:
   /*!
    * \brief Executes the callback from the actionlib
    *
-   * Set the current goal to aborted after receiving a new goal and write new goal to a member variable. Wait for the goal to finish and set actionlib status to succeeded.
+   * Set the current goal to aborted after receiving a new goal and write new goal to a member variable.
+   * Wait for the goal to finish and set actionlib status to succeeded.
    * \param goal JointTrajectoryGoal
    */
   void executeCB(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal)
@@ -333,15 +335,24 @@ public:
     }
 
     targetAngles_.resize(DOF_);
-    targetAngles_[0] = goal->trajectory.points[0].positions[dict["sdh_knuckle_joint"]] * 180.0 / pi_;  // sdh_knuckle_joint
-    targetAngles_[1] = goal->trajectory.points[0].positions[dict["sdh_finger_22_joint"]] * 180.0 / pi_;  // sdh_finger22_joint
-    targetAngles_[2] = goal->trajectory.points[0].positions[dict["sdh_finger_23_joint"]] * 180.0 / pi_;  // sdh_finger23_joint
-    targetAngles_[3] = goal->trajectory.points[0].positions[dict["sdh_thumb_2_joint"]] * 180.0 / pi_;  // sdh_thumb2_joint
-    targetAngles_[4] = goal->trajectory.points[0].positions[dict["sdh_thumb_3_joint"]] * 180.0 / pi_;  // sdh_thumb3_joint
-    targetAngles_[5] = goal->trajectory.points[0].positions[dict["sdh_finger_12_joint"]] * 180.0 / pi_;  // sdh_finger12_joint
-    targetAngles_[6] = goal->trajectory.points[0].positions[dict["sdh_finger_13_joint"]] * 180.0 / pi_;  // sdh_finger13_joint
+
+    // sdh_knuckle_joint
+    targetAngles_[0] = goal->trajectory.points[0].positions[dict["sdh_knuckle_joint"]] * 180.0 / pi_;
+    // sdh_finger22_joint
+    targetAngles_[1] = goal->trajectory.points[0].positions[dict["sdh_finger_22_joint"]] * 180.0 / pi_;
+    // sdh_finger23_joint
+    targetAngles_[2] = goal->trajectory.points[0].positions[dict["sdh_finger_23_joint"]] * 180.0 / pi_;
+    // sdh_thumb2_joint
+    targetAngles_[3] = goal->trajectory.points[0].positions[dict["sdh_thumb_2_joint"]] * 180.0 / pi_;
+    // sdh_thumb3_joint
+    targetAngles_[4] = goal->trajectory.points[0].positions[dict["sdh_thumb_3_joint"]] * 180.0 / pi_;
+    // sdh_finger12_joint
+    targetAngles_[5] = goal->trajectory.points[0].positions[dict["sdh_finger_12_joint"]] * 180.0 / pi_;
+    // sdh_finger13_joint
+    targetAngles_[6] = goal->trajectory.points[0].positions[dict["sdh_finger_13_joint"]] * 180.0 / pi_;
     ROS_INFO(
-        "received position goal: [['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint']] = [%f,%f,%f,%f,%f,%f,%f]",
+        "received position goal: [['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint'"
+        ", 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint']] = [%f,%f,%f,%f,%f,%f,%f]",
         goal->trajectory.points[0].positions[dict["sdh_knuckle_joint"]],
         goal->trajectory.points[0].positions[dict["sdh_thumb_2_joint"]],
         goal->trajectory.points[0].positions[dict["sdh_thumb_3_joint"]],
@@ -406,7 +417,7 @@ public:
       return;
     }
 
-    // TODO: write proper lock!
+    // TODO(X) write proper lock!
     while (hasNewGoal_ == true)
       usleep(10000);
 
@@ -648,7 +659,8 @@ public:
           try
           {
             sdh_->SetAxisTargetVelocity(axes_, velocities_);
-            // ROS_DEBUG_STREAM("velocities: " << velocities_[0] << " "<< velocities_[1] << " "<< velocities_[2] << " "<< velocities_[3] << " "<< velocities_[4] << " "<< velocities_[5] << " "<< velocities_[6]);
+            // ROS_DEBUG_STREAM("velocities: " << velocities_[0] << " "<< velocities_[1] << " "<< velocities_[2] <<
+            // " "<< velocities_[3] << " "<< velocities_[4] << " "<< velocities_[5] << " "<< velocities_[6]);
           }
           catch (SDH::cSDHLibraryException* e)
           {
@@ -706,7 +718,8 @@ public:
       msg.effort.resize(DOF_);
       // set joint names and map them to angles
       msg.name = joint_names_;
-      // ['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint']
+      // ['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint',
+      // 'sdh_finger_22_joint', 'sdh_finger_23_joint']
       // pos
       msg.position[0] = actualAngles[0] * pi_ / 180.0;  // sdh_knuckle_joint
       msg.position[1] = actualAngles[3] * pi_ / 180.0;  // sdh_thumb_2_joint
@@ -726,7 +739,8 @@ public:
       // publish message
       topicPub_JointState_.publish(msg);
 
-      // because the robot_state_publisher doen't know about the mimic joint, we have to publish the coupled joint separately
+      // because the robot_state_publisher doen't know about the mimic joint, we have to publish the coupled joint
+      // separately
       sensor_msgs::JointState mimicjointmsg;
       mimicjointmsg.header.stamp = time;
       mimicjointmsg.name.resize(1);
@@ -749,7 +763,8 @@ public:
       controllermsg.error.velocities.resize(DOF_);
       // set joint names and map them to angles
       controllermsg.joint_names = joint_names_;
-      // ['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint']
+      // ['sdh_knuckle_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint',
+      // 'sdh_finger_22_joint', 'sdh_finger_23_joint']
       // desired pos
       if (targetAngles_.size() != 0)
       {
