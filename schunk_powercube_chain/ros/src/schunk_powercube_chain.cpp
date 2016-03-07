@@ -374,9 +374,9 @@ public:
     std::vector<double> Offsets(DOF);
     for (unsigned int i = 0; i < DOF; i++)
     {
-      if(model.getJoint(JointNames[i].c_str())->calibration == 0)
+      if(model.getJoint(JointNames[i].c_str())->calibration == NULL)
         Offsets[i] = 0.0;
-      else 
+      else
         Offsets[i] = model.getJoint(JointNames[i].c_str())->calibration->rising.get()[0];
     }
 
