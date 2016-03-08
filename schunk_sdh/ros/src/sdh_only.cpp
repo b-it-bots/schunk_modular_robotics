@@ -277,7 +277,7 @@ public:
     }
     catch (SDH::cSDHLibraryException* e)
     {
-      ROS_ERROR("An exception was caught: %s", e->what());
+      ROS_ERROR("An exception was caught while setting opertion mode: %s", e->what());
       delete e;
       return false;
     }
@@ -470,7 +470,7 @@ public:
       }
       catch (SDH::cSDHLibraryException* e)
       {
-        ROS_ERROR("An exception was caught: %s", e->what());
+        ROS_ERROR("An exception was caught while openning the connection: %s", e->what());
         res.success = false;
         res.message = e->what();
         delete e;
@@ -512,7 +512,7 @@ public:
     }
     catch (SDH::cSDHLibraryException* e)
     {
-      ROS_ERROR("An exception was caught: %s", e->what());
+      ROS_ERROR("An exception was caught while stopping: %s", e->what());
       delete e;
     }
 
@@ -561,7 +561,7 @@ public:
       }
       catch (SDH::cSDHLibraryException* e)
       {
-        ROS_ERROR("An exception was caught: %s", e->what());
+        ROS_ERROR("An exception was caught while changing the operation mode: %s", e->what());
         delete e;
       }
     }
@@ -591,7 +591,7 @@ public:
         }
         catch (SDH::cSDHLibraryException* e)
         {
-          ROS_ERROR("An exception was caught: %s", e->what());
+          ROS_ERROR("An exception was caught while stopping: %s", e->what());
           delete e;
         }
 
@@ -606,7 +606,7 @@ public:
           }
           catch (SDH::cSDHLibraryException* e)
           {
-            ROS_ERROR("An exception was caught: %s", e->what());
+            ROS_ERROR("An exception was caught while moving sdh in position mode: %s", e->what());
             delete e;
           }
         }
@@ -621,7 +621,7 @@ public:
           }
           catch (SDH::cSDHLibraryException* e)
           {
-            ROS_ERROR("An exception was caught: %s", e->what());
+            ROS_ERROR("An exception was caught while moving sdh in velocity mode: %s", e->what());
             delete e;
           }
         }
@@ -648,7 +648,7 @@ public:
       }
       catch (SDH::cSDHLibraryException* e)
       {
-        ROS_ERROR("An exception was caught: %s", e->what());
+        ROS_ERROR("An exception was caught while retrieving axis angles: %s", e->what());
         delete e;
       }
       std::vector<double> actualVelocities;
@@ -658,7 +658,7 @@ public:
       }
       catch (SDH::cSDHLibraryException* e)
       {
-        ROS_ERROR("An exception was caught: %s", e->what());
+        ROS_ERROR("An exception was caught while retrieving axis velocities: %s", e->what());
         delete e;
       }
 
